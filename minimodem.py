@@ -6,14 +6,14 @@ import time
 
 class minimodem_wrapper:
     def __receiveProcess(self):
-        return subprocess.Popen('/home/seb/devel/minimodem/src/minimodem -r ' +
+        return subprocess.Popen('/home/seb/devel/minimodem/src/minimodem -r --alsa='+self.interface+',0 ' +
         str(self.speed),
         shell=True,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE)
 
     def __transmitProcess(self):
-        return subprocess.Popen('/home/seb/devel/minimodem/src/minimodem -t ' +
+        return subprocess.Popen('/home/seb/devel/minimodem/src/minimodem -t --alsa='+self.interface+',0 ' +
              str(self.speed),
             shell=True,
             stdin=subprocess.PIPE,
@@ -51,12 +51,13 @@ class minimodem_wrapper:
         if len(self.txPackets) < 10:
             self.txPackets.append(txData)
 
-    def __init__(self, speed = 200):
+    def __init__(self, speed = 200, interface=0):
         self.speed = speed
         self.packet = bytearray()
         self.txPackets = deque()
         self.inPacket = False
         self.transmit = False
+        self.interface = interface
 
         self.txHandler = self.__transmitProcess()
         self.rxHandler = self.__receiveProcess()
