@@ -9,11 +9,13 @@ import sys
 from packet import *
 
 pkt = Packetizer()
+depkt = Depacketizer()
 
 def testTransmit():
     while True:
         data = b'Hello World'
         packet = pkt.createPacket(data)
+        depkt.unpackData(packet)
         mm.send(packet)
         time.sleep(5)
 
