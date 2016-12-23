@@ -5,16 +5,16 @@ from threading import Thread
 import time
 import subprocess
 import sys
-from PyCRC.CRC16 import CRC16
+
+from packet import *
+
+pkt = Packetizer()
 
 def testTransmit():
     while True:
-        data = bytes([0x55, 0])+bytes('ON4SEB Hello World','utf-8')
-        crcCalc = CRC16()
-        packetCrc = crcCalc.calculate(data)
-        # Append end of packet
-        data += bytes([(packetCrc & 0xFF00) >> 8, packetCrc & 0xFF, 0xAA])
-        mm.send(data)
+        data = b'Hello World'
+        packet = pkt.createPacket(data)
+        mm.send(packet)
         time.sleep(5)
 
 if __name__ == '__main__':
