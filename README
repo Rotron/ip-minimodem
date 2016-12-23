@@ -4,6 +4,8 @@
 This project is a deamon that will be able to transmit IP data
 over a radio link (1200 bps)
 
-## Use
-./ip-minimodem.py
+## Requires
+* PyCRC
 
+## Use
+sudo ./ip-minimodem.py <ALSA interface ID>
