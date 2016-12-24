@@ -32,5 +32,5 @@ class tunInterface():
         subprocess.check_call('ifconfig ' + ifName + ' '+ipAddr+'/24 up',
 shell=True)
 
-    def getPacket():
-        return self.tun.read(512)
+    def getPacket(self):
+        return self.tun.read(2000)
