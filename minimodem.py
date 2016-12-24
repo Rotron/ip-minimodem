@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 import subprocess
-import select
 from collections import deque
 import framer
 import time
@@ -32,6 +31,9 @@ class minimodem_wrapper:
     def processRxPacketData(self):
         data = self.rxHandler.stdout.read(1)
         self.framer.processInput(data)
+
+    def getIncomingPackets(self):
+        return (self.framer.incomingPacketsCount(), self.framer.incomingPackets())
 
     def processTxPackets(self):
         if len(self.txPackets) > 0 and not self.inPacket:

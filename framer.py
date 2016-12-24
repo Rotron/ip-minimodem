@@ -1,12 +1,18 @@
 #!/usr/bin/env python3
 
+from receivePacket import *
+from collections import deque
+
 IDLE, HEADER, DATA ,CRC = range(4)
+
+depack = ReceivePacket()
 
 class Framer():
     def __init__(self):
         self.state = IDLE
         self.fieldLength = 0
         self.packet = bytearray()
+        self.packetFifo = deque()
 
     def clearBuffers(self):
         self.packet = bytearray()
@@ -37,9 +43,18 @@ class Framer():
             self.packet += data
             self.fieldLength -= 1
             if self.fieldLength == 0:
-                print ('packet received : '+str(self.packet))
+                unpackedData = depack.unpackData(self.packet)
+                if unpackedData:
+                    self.packetFifo.append(unpackedData)
                 if data != bytes([0xAA]):
                     print('Framing error: invalid end of packet')
                 self.state = IDLE
 
-        #print (str(self.state) + ' Processing data ' + str(data))
+    def incomingPackets(self):
+        if len(self.packetFifo) > 0:
+            return self.packetFifo.popleft()
+        else:
+            return None
+
+    def incomingPacketsCount(self):
+        return len(self.packetFifo)

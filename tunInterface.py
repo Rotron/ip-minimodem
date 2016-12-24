@@ -34,3 +34,7 @@ shell=True)
 
     def getPacket(self):
         return self.tun.read(2000)
+
+    def writePacket(self, data):
+        self.tun.write(data)
+        self.tun.flush()

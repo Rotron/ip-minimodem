@@ -6,7 +6,7 @@ class Packetizer():
     def __init__(self, callsign):
         self.sequenceId = 0
         callsignLen = 6 if len(callsign) > 6 else len(callsign)
-        self.callsign = bytes(callsign[:callsignLen] + ' '*(6-len(callsign)), 'utf-8')
+        self.callsign = bytes(callsign[:callsignLen].upper() + ' '*(6-len(callsign)), 'utf-8')
 
     def createPacket(self, data=b''):
         packet = bytearray()
@@ -37,27 +37,3 @@ class Packetizer():
         packet += bytes([(crc & 0xFF00) >> 8, crc & 0xFF, 0xAA])
 
         return packet
-
-class Depacketizer():
-    def __init__(self):
-        self.sequenceId = 0
-        self.packetLost = 0
-
-    def unpackData(self, packet=b''):
-        crcCalculator = CRC16()
-        packetValid = False
-        crc = crcCalculator.calculate(bytes(packet[:-3]))
-
-        # Check CRC validity
-        if ((crc & 0xFF00) >> 8) == packet[-3] and (crc & 0xFF) == packet[-2]:
-            packetValid = True
-
-        # Check for missing packets
-        if packetValid:
-            expectedSequenceId = (self.sequenceId + 1) & 0xFFFF
-            packetSequenceId = packet[7] << 8 | packet[8]
-            if expectedSequenceId != packetSequenceId:
-                self.packetLost += 1
-            self.sequenceId = packetSequenceId
-
-        return packetValid
