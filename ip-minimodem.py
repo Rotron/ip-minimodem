@@ -5,8 +5,10 @@ from threading import Thread
 import time
 import subprocess
 import sys
+import configparser
 
 from packet import *
+from tunInterface import *
 
 pkt = Packetizer()
 depkt = Depacketizer()
@@ -20,7 +22,11 @@ def testTransmit():
         time.sleep(5)
 
 if __name__ == '__main__':
-    mm = minimodem_wrapper(speed = 1200, interface=sys.argv[1])
+    config = configparser.ConfigParser()
+    config.read(sys.argv[1])
+
+    mm = minimodem_wrapper(speed = 1200, interface=config['radio']['audiodevice'])
+    tun = tunInterface(config = config['tun'])
 
     transmitThd = Thread(target=testTransmit)
     transmitThd.start()
