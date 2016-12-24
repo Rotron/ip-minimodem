@@ -10,20 +10,17 @@ import configparser
 from packet import *
 from tunInterface import *
 
-pkt = Packetizer()
-depkt = Depacketizer()
-
 def testTransmit():
     while True:
         data = b'Hello World'
         packet = pkt.createPacket(data)
-        depkt.unpackData(packet)
         mm.send(packet)
         time.sleep(5)
 
 if __name__ == '__main__':
     config = configparser.ConfigParser()
     config.read(sys.argv[1])
+    pkt = Packetizer(callsign=config['radio']['callsign'])
 
     mm = minimodem_wrapper(speed = 1200, interface=config['radio']['audiodevice'])
     tun = tunInterface(config = config['tun'])

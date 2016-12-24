@@ -3,8 +3,10 @@
 from PyCRC.CRC16 import CRC16
 
 class Packetizer():
-    def __init__(self):
+    def __init__(self, callsign):
         self.sequenceId = 0
+        callsignLen = 6 if len(callsign) > 6 else len(callsign)
+        self.callsign = bytes(callsign[:callsignLen] + ' '*(6-len(callsign)), 'utf-8')
 
     def createPacket(self, data=b''):
         packet = bytearray()
@@ -13,7 +15,7 @@ class Packetizer():
         packet += bytes([0x7E])
 
         # Callsign (6 bytes)
-        packet += b'ON4SEB'
+        packet += self.callsign
 
         # Length (2 bytes)
         dataLen = len(data)
