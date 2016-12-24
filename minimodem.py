@@ -2,6 +2,7 @@
 import subprocess
 import select
 from collections import deque
+import framer
 import time
 
 class minimodem_wrapper:
@@ -23,15 +24,14 @@ class minimodem_wrapper:
         line = self.rxHandler.stderr.readline()
         if line.startswith(b'### CARRIER '):
             self.inPacket = True
-            self.packet = bytearray()
-            print('Beginning of incoming packet')
+            #print('Beginning of incoming packet')
         elif line.startswith(b'### NOCARRIER '):
             self.inPacket = False
-            print('End of incoming packet '+str(self.packet))
+            #print('End of carrier')
 
     def processRxPacketData(self):
         data = self.rxHandler.stdout.read(1)
-        self.packet += data
+        self.framer.processInput(data)
 
     def processTxPackets(self):
         if len(self.txPackets) > 0 and not self.inPacket:
@@ -44,7 +44,7 @@ class minimodem_wrapper:
     def processEndOfTransmission(self):
         line = self.txHandler.stderr.readline()
         if line.startswith(b'### EOM'):
-            print('End of transmission')
+            #print('End of transmission')
             self.transmit = False
 
     def send(self, txData):
@@ -53,7 +53,6 @@ class minimodem_wrapper:
 
     def __init__(self, speed = 200, interface=0):
         self.speed = speed
-        self.packet = bytearray()
         self.txPackets = deque()
         self.inPacket = False
         self.transmit = False
@@ -61,3 +60,5 @@ class minimodem_wrapper:
 
         self.txHandler = self.__transmitProcess()
         self.rxHandler = self.__receiveProcess()
+
+        self.framer = framer.Framer()
