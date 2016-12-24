@@ -10,14 +10,21 @@ class Packetizer():
         packet = bytearray()
 
         # Header (1 byte)
-        packet += bytes([0x55])
+        packet += bytes([0x7E])
 
         # Callsign (6 bytes)
         packet += b'ON4SEB'
 
+        # Length (2 bytes)
+        dataLen = len(data)
+        packet += bytes([(dataLen & 0xFF00) >> 8, dataLen & 0xFF])
+
         # Sequence ID (2 bytes)
         packet += bytes([(self.sequenceId & 0xFF00) >> 8, self.sequenceId & 0xFF])
         self.sequenceId = (self.sequenceId + 1) & 0xFFFF
+
+        # Add end of header (1 byte)
+        packet += bytes([0x55])
 
         # payload (unknown length)
         packet += data
