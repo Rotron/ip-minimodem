@@ -13,7 +13,7 @@ class minimodem_wrapper:
         stderr=subprocess.PIPE)
 
     def __transmitProcess(self):
-        return subprocess.Popen('/home/seb/devel/minimodem/src/minimodem -t --alsa='+self.interface+',0 ' +
+        return subprocess.Popen('/home/seb/devel/minimodem/src/minimodem -t --print-eot --alsa='+self.interface+',0 ' +
              str(self.speed),
             shell=True,
             stdin=subprocess.PIPE,
@@ -45,7 +45,7 @@ class minimodem_wrapper:
 
     def processEndOfTransmission(self):
         line = self.txHandler.stderr.readline()
-        if line.startswith(b'### EOM'):
+        if line.startswith(b'### EOT'):
             #print('End of transmission')
             self.transmit = False
 
