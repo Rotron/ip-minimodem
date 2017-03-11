@@ -18,6 +18,7 @@ def dispatchIncomingPacketsToTun(minimodem, tun):
 if __name__ == '__main__':
     config = configparser.ConfigParser()
     config.read(sys.argv[1])
+    
     pkt = Packetizer(callsign=config['radio']['callsign'])
 
     mm = minimodem_wrapper(speed = 1200, interface=config['radio']['audiodevice'])

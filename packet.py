@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 from PyCRC.CRC16 import CRC16
+from cobs import cobs
 
 class Packetizer():
     def __init__(self, callsign):
@@ -11,9 +12,7 @@ class Packetizer():
     def createPacket(self, data=b''):
         packet = bytearray()
 
-        # Header (1 byte)
-        packet += bytes([0x7E])
-
+        # Header (1 byte - added after padding)
         # Callsign (6 bytes)
         packet += self.callsign
 
@@ -25,15 +24,14 @@ class Packetizer():
         packet += bytes([(self.sequenceId & 0xFF00) >> 8, self.sequenceId & 0xFF])
         self.sequenceId = (self.sequenceId + 1) & 0xFFFF
 
-        # Add end of header (1 byte)
-        packet += bytes([0x55])
-
         # payload (unknown length)
         packet += data
 
-        # CRC and footer (CRC MSB, CRC LSB, end of packet) (3 bytes)
+        # CRC and footer (CRC MSB, CRC LSB) (2 bytes)
         crcCalculator = CRC16()
         crc = crcCalculator.calculate(bytes(packet))
-        packet += bytes([(crc & 0xFF00) >> 8, crc & 0xFF, 0xAA])
+        packet += bytes([(crc & 0xFF00) >> 8, crc & 0xFF])
 
-        return packet
+        encoded_packet = cobs.encode(packet)
+
+        return bytes([0]) + encoded_packet + bytes([0])

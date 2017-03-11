@@ -5,50 +5,31 @@ from collections import deque
 
 IDLE, HEADER, DATA ,CRC = range(4)
 
-depack = ReceivePacket()
-
 class Framer():
     def __init__(self):
         self.state = IDLE
         self.fieldLength = 0
         self.packet = bytearray()
         self.packetFifo = deque()
+        self.capture = False
+        self.depack = ReceivePacket()
 
     def clearBuffers(self):
         self.packet = bytearray()
 
     def processInput(self, data):
-        if self.state == IDLE:
-            if data == bytes([0x7E]):
-                self.clearBuffers()
+        if self.capture:
+            if data != b'\x00':
                 self.packet += data
-                self.state = HEADER
-                self.fieldLength = 11
-        elif self.state == HEADER:
-            self.packet += data
-            self.fieldLength -= 1
-            if self.fieldLength == 0:
-                if data == bytes([0x55]):
-                    self.fieldLength = (self.packet[7] << 8) + self.packet[8]
-                    self.state = DATA
-                else:
-                    self.state = IDLE
-        elif self.state == DATA:
-            self.packet += data
-            self.fieldLength -= 1
-            if self.fieldLength == 0:
-                self.state = CRC
-                self.fieldLength = 3
-        elif self.state == CRC:
-            self.packet += data
-            self.fieldLength -= 1
-            if self.fieldLength == 0:
-                unpackedData = depack.unpackData(self.packet)
-                if unpackedData:
-                    self.packetFifo.append(unpackedData)
-                if data != bytes([0xAA]):
-                    print('Framing error: invalid end of packet')
-                self.state = IDLE
+            else:
+                extractedPacket = self.depack.unpackData(self.packet)
+                if extractedPacket != None:
+                    #print('Packet OK '+str(extractedPacket))
+                    self.packetFifo.append(extractedPacket)
+                self.packet = bytearray()
+        else:
+            if data == b'\x00':
+                self.capture = True
 
     def incomingPackets(self):
         if len(self.packetFifo) > 0:
