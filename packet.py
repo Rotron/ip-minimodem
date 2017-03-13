@@ -9,7 +9,7 @@ class Packetizer():
         self.sequenceId = 0
         callsignLen = 6 if len(callsign) > 6 else len(callsign)
         self.callsign = bytes(callsign[:callsignLen].upper() + ' '*(6-len(callsign)), 'utf-8')
-        self.rs = RSCodec()
+        self.rs = RSCodec(32)
 
     def createPacket(self, data=b''):
         packet = bytearray()

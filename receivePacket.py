@@ -8,7 +8,7 @@ class ReceivePacket():
     def __init__(self):
         self.sequenceId = 0
         self.packetLost = 0
-        self.rs = RSCodec()
+        self.rs = RSCodec(32)
 
     def unpackData(self, inPacket):
         crcCalculator = CRC16()
