@@ -36,7 +36,7 @@ class ReceivePacket():
                 if expectedSequenceId != packetSequenceId:
                     self.packetLost += 1
                 self.sequenceId = packetSequenceId
-                payload = packet[10:-3]
+                payload = packet[10:-2]
                 return (originCallsign, packetLen, packetSequenceId, payload)
         except Exception as e:
             #print('Decode error '+str(e)+'\n'+str(inPacket))
