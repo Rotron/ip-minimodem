@@ -2,18 +2,21 @@
 
 from PyCRC.CRC16 import CRC16
 from cobs import cobs
+from reedsolo import RSCodec
 
 class ReceivePacket():
     def __init__(self):
         self.sequenceId = 0
         self.packetLost = 0
+        self.rs = RSCodec()
 
-    def unpackData(self, inPacket=b''):
+    def unpackData(self, inPacket):
         crcCalculator = CRC16()
         packetValid = False
 
         try:
-            packet = cobs.decode(inPacket)
+            correctedPacket = self.rs.decode(inPacket)[0]
+            packet = cobs.decode(correctedPacket)
 
             crc = crcCalculator.calculate(bytes(packet[:-2]))
 
@@ -35,6 +38,6 @@ class ReceivePacket():
                 self.sequenceId = packetSequenceId
                 payload = packet[10:-3]
                 return (originCallsign, packetLen, packetSequenceId, payload)
-        except:
-            #print('Decode error '+str(inPacket))
+        except Exception as e:
+            #print('Decode error '+str(e)+'\n'+str(inPacket))
             return None

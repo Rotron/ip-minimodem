@@ -2,12 +2,14 @@
 
 from PyCRC.CRC16 import CRC16
 from cobs import cobs
+from reedsolo import RSCodec
 
 class Packetizer():
     def __init__(self, callsign):
         self.sequenceId = 0
         callsignLen = 6 if len(callsign) > 6 else len(callsign)
         self.callsign = bytes(callsign[:callsignLen].upper() + ' '*(6-len(callsign)), 'utf-8')
+        self.rs = RSCodec()
 
     def createPacket(self, data=b''):
         packet = bytearray()
@@ -32,6 +34,6 @@ class Packetizer():
         crc = crcCalculator.calculate(bytes(packet))
         packet += bytes([(crc & 0xFF00) >> 8, crc & 0xFF])
 
-        encoded_packet = cobs.encode(packet)
-
+        cobs_packet = cobs.encode(packet)
+        encoded_packet = self.rs.encode(cobs_packet)
         return bytes([0]) + encoded_packet + bytes([0])
