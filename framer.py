@@ -3,12 +3,8 @@
 from receivePacket import *
 from collections import deque
 
-IDLE, HEADER, DATA ,CRC = range(4)
-
 class Framer():
     def __init__(self):
-        self.state = IDLE
-        self.fieldLength = 0
         self.packet = bytearray()
         self.packetFifo = deque()
         self.depack = ReceivePacket()
